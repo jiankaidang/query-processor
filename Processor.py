@@ -1,6 +1,7 @@
 from heapq import heappush, heappop
 from math import log
-from getPageRank import getPageRank, getAlexaRank
+from getPageRank import getPageRank, 
+from checkResult import check_result
 #
 #comand list:
 #quit
@@ -205,6 +206,10 @@ def search_query(query):
     for i in reversed(range(0, len(res_q))):
         url = doc_meta[ res_q[i][0] ].url
         res.append(  (res_q[i][0], url, res_q[i][1])  )
+
+
+    # check duplicate and none-visitable result
+    res = check_result(res)
     return res
 
 ################## Search APIs######################
