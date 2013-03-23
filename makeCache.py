@@ -29,7 +29,8 @@ def do_cache(word):
 
 	return true
 
-def is_cached():
+def is_cached(word_id):
+	
 	return
 def get_cache_data():
 	return
