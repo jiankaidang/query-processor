@@ -18,7 +18,7 @@ class lexicon_node:
         self.data_num = data_num
 
 
-data_set_dir = "LargeDateset/"
+data_set_dir = "/Users/charnugagoo/Documents/Workspace/InvertedIndexLargeDataSet/LargeDateset/"
 inverted_index_set_dir = data_set_dir + "InvertedIndex_large_set/"
 gz_suffix = ".gz"
 txt_suffix = ".txt"

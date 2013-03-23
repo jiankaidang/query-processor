@@ -30,12 +30,10 @@ def check_content(Content):
         
         Use SimHash compute a 128 bit hash number. Compute Hamming distance to decide whether they are similar
         """
-    hash = SimHashSample.simhash(Content.split())
+    hash = simHash.simhash(Content.split())
     for x in hash_content:
         if hash.hamming_distance(x) < 1:
             print "Similar Page Found !!!"
-            numberOfSimilar += 1
-            print str(numberOfSimilar)
             return False
     hash_content.append(hash)
     return True;
@@ -46,7 +44,7 @@ def check_result(result_set):
     res = []
     for r in result_set:
         # did, url, score
-        content = get_content(url)
+        content = get_content(r[1])
         if not check_content(content) and content != "none":
             res.append(r)
     return res

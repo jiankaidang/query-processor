@@ -100,8 +100,7 @@ max_doc_id = len(doc_list)
 ################## Basic Search APIs ######################
 
 #DaaT functions begin
-def open(query_word):
-     return
+
 def openList(term):
      return
 def closeList(term):
