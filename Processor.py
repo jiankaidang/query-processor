@@ -1,6 +1,6 @@
 from heapq import heappush, heappop
 from math import log
-from getPageRank import getPageRank, 
+from getPageRank import getPageRank, getAlexaRank
 from checkResult import check_result
 #
 #comand list:
@@ -100,16 +100,16 @@ max_doc_id = len(doc_list)
 ################## Basic Search APIs ######################
 
 #DaaT functions begin
-# def open(query_word):
-#     return
-# def openList(term):
-#     return
-# def closeList(term):
-#     return
-# def nextGEQ(list_posting, k_docID):
-#     return
-# def getFreq(list_posting):
-#     return
+def open(query_word):
+     return
+def openList(term):
+     return
+def closeList(term):
+     return
+def nextGEQ(list_posting, k_docID):
+     return
+def getFreq(list_posting):
+     return
 
 #DaaT functions end
 ################## Basic Search APIs ######################
@@ -130,7 +130,8 @@ def compute_BM25(terms, did, freq):
     b = 0.75
     K = k1*(1 - b + b * d / d_avg)
     for i in range(0, len(terms)):
-        fdt = float(f[i])
+        ft = float(   lexicon_list[word_list[terms[i]]].total )
+        fdt = float(freq[i])
         res += log((n - ft + 0.5)/(ft + 0.5)) * (k1 + 1.0) * fdt / (K + fdt)
     return res
 
@@ -176,7 +177,7 @@ def search_query(query):
         # for (i=1; (i<num) && ((d=nextGEQ(lp[i], did)) == did); i++);
         d = -1
         for i in range(1, num):
-            d = nextGEQ(lp[i], did)
+            d = nextGEQ(ip[i], did)
             if d != did:
                 break
         # not in intersection
@@ -187,13 +188,13 @@ def search_query(query):
             # for (i=0; i<num; i++)  f[i] = getFreq(lp[i], did);
             f = []
             for i in range(0, num):
-                f.append(getFreq(lp[i], did))
+                f.append(getFreq(ip[i], did))
 
             # compute BM25 score from frequencies and other data
             temp = compute_score(query, did, f)
             if len(res_q) < top:
                 heappush(res_q, (temp, did))
-            else if res_q[0][0] < temp:
+            elif res_q[0][0] < temp:
                 heappop(res_q)
                 heappush(res_q, (temp, did))
             # to do top10, using priority queue
@@ -215,20 +216,20 @@ def search_query(query):
 ################## Search APIs######################
 
 ################## Display APIs######################
-# def display_result_glance():
-#     """to do
-#     """
-#     return
+def display_result_glance():
+     """to do
+     """
+     return
 
-# def display_result_open():
-#     """to do
-#     """
-#     return
+def display_result_open():
+     """to do
+     """
+     return
 
-# def search_query(query):
-#     """to do
-#     """
-#     return
+def search_query(query):
+     """to do
+     """
+     return
 ################## Display APIs######################
 
 
