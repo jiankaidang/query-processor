@@ -1,6 +1,7 @@
 from heapq import heappush, heappop
 import linecache
 from math import log
+import random
 from encode import decode7bit
 from getPageRank import getPageRank, getAlexaRank
 from checkResult import check_result
