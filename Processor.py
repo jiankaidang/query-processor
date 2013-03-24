@@ -274,10 +274,10 @@ def display_complex_result(result_set, query):
         print r[0], r[1], r[2]
         print result_set[i][1]
     return result_set
+################## Display APIs######################
 
 
-""" This file includes caching method
-"""
+################## Cache APIs######################
 
 def make_decision_and_do_cache(cache_num = 500000, path = "EnglishWordFrequency2.txt"):
 #    This function selects terms to do cache
@@ -329,9 +329,10 @@ def get_cache_data(word_id):
         return cached_data[word_id]
 
 cached_data = {}
-################## Display APIs######################
+################## Cache APIs######################
 
-# main function
+
+################## Main Function######################
 make_decision_and_do_cache()
 while(True):
     input = raw_input("> input query: search, search-complex or quit\n")
@@ -345,3 +346,4 @@ while(True):
         result_set = search_query(query, True)
     else:
         print "error: invalid command"
+################## Main Function######################
