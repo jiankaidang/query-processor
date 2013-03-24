@@ -2,6 +2,7 @@ from heapq import heappush, heappop
 from math import log
 from getPageRank import getPageRank, getAlexaRank
 from checkResult import check_result
+from queryParser import parse
 #
 #comand list:
 #quit
@@ -154,7 +155,8 @@ def search_query(query):
     global max_doc_id
     global top
     res = []
-    query = query.split()
+    # query = query.split()
+    query = parse(query)
     if len(query) == 0:
         return res
     ip = []
@@ -206,28 +208,22 @@ def search_query(query):
     for i in reversed(range(0, len(res_q))):
         url = doc_meta[ res_q[i][0] ].url
         res.append(  (res_q[i][0], url, res_q[i][1])  )
+        # 
 
 
     # check duplicate and none-visitable result
-    res = check_result(res)
+    res = check_result(query, res)
     return res
 
 ################## Search APIs######################
 
 ################## Display APIs######################
-def display_result_glance():
-     """to do
-     """
-     return
-
-def display_result_open():
-     """to do
-     """
-     return
-
-def search_query(query):
-     """to do
-     """
+def display_result(result_set):
+     for i in range(0, len(result_set)):
+        print "Result #" + str(i)
+        r = result_set[i][0]
+        print r[0], r[1], r[2]
+        print result_set[i][1]
      return
 ################## Display APIs######################
 
@@ -242,20 +238,6 @@ while(True):
         query = raw_input("your query: ")
         result_set = search_query(query)
         print "There are " + str(len(result_set)) + " querries."
-    elif input == "glance":
-        number = int(raw_input("give me a doc number in result set"))
-        if number >= len(result_set):
-            print "error: out of result set number"
-        else:
-            display_result_glance(result_set[number])
-    elif input == "glanceall":
-        for i in range(0, min(top, len(result_set))):
-            display_result_glance(result_set[i])
-    elif input == "open":
-        number = int(raw_input("give me a doc number in result set"))
-        if number >= len(result_set):
-            print "error: out of result set number"
-        else:
-            display_result_open(result_set[number])
+        display_result(result_set)
     else:
         print "error: invalid command"

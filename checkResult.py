@@ -38,7 +38,7 @@ def check_content(Content):
     hash_content.append(hash)
     return True;
 
-def check_result(result_set):
+def check_result(terms, result_set):
     global hash_content
     hash_content = []
     res = []
@@ -46,5 +46,33 @@ def check_result(result_set):
         # did, url, score
         content = get_content(r[1])
         if not check_content(content) and content != "none":
-            res.append(r)
+            # res.append(r)
+
+            # give a simple content
+            res_sub_str = ""
+            res_sub_str_num = -1
+            for term in terms:
+                i = content.find(term)
+                if i == -1:
+                    continue
+                substr = content(i: min(len(content, (i+140)) )
+                cc = 0
+                for term2 in terms:
+                    if substr.find(term2):
+                        cc += 1
+                if cc > res_sub_str_num
+                    res_sub_str = substr
+                    res_sub_str_num = cc
+            res.append( (r, res_sub_str) )
     return res
+
+
+
+
+
+
+
+
+
+
+

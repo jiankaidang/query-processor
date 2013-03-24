@@ -1,7 +1,7 @@
 from Processor import word_list, lexicon_list
 import random
 
-def make_decistion(cache_num = 200000, path = "EnglishWord"):
+def make_decistion(cache_num = 300000, path = "EnglishWord"):
 	cached_num = 0
 	for line in open(path):
 		line = line.split()
