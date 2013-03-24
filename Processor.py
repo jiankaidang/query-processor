@@ -5,7 +5,8 @@ from encode import decode7bit
 from getPageRank import getPageRank, getAlexaRank
 from checkResult import check_result
 from queryParser import parse
-from makeCache import make_decision_and_do_cache
+from makeCache import make_decision_and_do_cache, is_cached, get_cache_data
+
 #
 #comand list:
 #quit
@@ -106,7 +107,12 @@ max_doc_id = len(doc_list)
 
 #DaaT functions begin
 
-def openList(term):
+def openList(term, getCache = False):
+
+    if getCache:
+        if is_cached(word_list(term)):
+            return get_cache_data(word_list(term))
+    
     print term
     lexicon_node_obj = lexicon_list[term]
     print lexicon_node_obj.did
