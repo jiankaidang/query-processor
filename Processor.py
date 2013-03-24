@@ -22,6 +22,7 @@ class lexicon_node:
         self.start = -1 # line number in lexicon file
         self.total = -1
         self.did = -1
+        self.length = -1
         #        self.number = -1
 
     def display(self):
@@ -59,6 +60,7 @@ def build_lexicon(path):
             lexicon_list[id].start = w[4]
             lexicon_list[id].total = w[3]
             lexicon_list[id].did = w[2]
+            lexicon_list[id].length = w[5]
             d_avg += float(w[5])
         else:
             continue
