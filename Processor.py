@@ -158,7 +158,7 @@ def search_query(query):
     ip = []
     d = []
     for q in query:
-        ip = openList(word_list[q])
+        ip.append(openList(word_list[q]))
     if len(ip) == 0:
         return res
     
@@ -204,23 +204,37 @@ def search_query(query):
     for i in reversed(range(0, len(res_q))):
         url = doc_meta[ res_q[i][0] ].url
         res.append(  (res_q[i][0], url, res_q[i][1])  )
-        # 
 
+    display_simple_result(res)
+    res = display_complex_result(res, query)
 
-    # check duplicate and none-visitable result
-    res = check_result(query, res)
     return res
 
 ################## Search APIs######################
 
 ################## Display APIs######################
-def display_result(result_set):
+
+def display_simple_result(result_set):
+    print "There are " + str(len(result_set)) + " querries.\n Simple Result:\n"
+    for i in range(0, len(result_set)):
+        print "Result #" + str(i)
+        r = result_set[i]
+        print r[0], r[1], r[2]
+        print result_set[i][1]
+    return
+
+def display_complex_result(result_set, query):
+     print "There are " + str(len(result_set)) + " querries.\n Complex Result:\n"
+# check duplicate and none-visitable result
+     result_set = check_result(query, result_set)
      for i in range(0, len(result_set)):
         print "Result #" + str(i)
         r = result_set[i][0]
         print r[0], r[1], r[2]
         print result_set[i][1]
-     return
+     return result_set
+
+
 ################## Display APIs######################
 
 
@@ -233,7 +247,5 @@ while(True):
     if input == "search":
         query = raw_input("your query: ")
         result_set = search_query(query)
-        print "There are " + str(len(result_set)) + " querries."
-        display_result(result_set)
     else:
         print "error: invalid command"

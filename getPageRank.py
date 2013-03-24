@@ -6,6 +6,8 @@ import httplib
 import re
 import xml.etree.ElementTree
 
+#    This file is based on an api of an open source project
+
 class RankProvider(object):
     """Abstract class for obtaining the page rank (popularity)
     from a provider such as Google or Alexa.
@@ -38,7 +40,6 @@ class RankProvider(object):
 
 class AlexaTrafficRank(RankProvider):
     """ Get the Alexa Traffic Rank for a URL
-
     """
     def __init__(self, host="xml.alexa.com", proxy=None, timeout=30):
         """Keyword arguments:
@@ -184,7 +185,8 @@ GoogleToolbar 2.0.111-big; Windows XP 5.1)")]
         return (a - b) % 4294967296
 
 def getPageRank(url):
-
+#    given a url, return the page rank number
+#    warning, the url must be within a format
     if url.find('//') != -1 :
         url = url.split('//')
         url = url[1]
@@ -203,6 +205,8 @@ def getPageRank(url):
             break
     return res
 def getAlexaRank(url):
+#    given a url, return the AlexaRank number
+#    no format needed
     res = -1
     for i in range(0, 3):
         try:
@@ -217,6 +221,7 @@ def getAlexaRank(url):
     return res
 
 if __name__ == "__main__":
+
     while True:
         url = raw_input()
         print getPageRank(url)
