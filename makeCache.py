@@ -1,4 +1,4 @@
-from Processor import word_list, lexicon_list
+from Processor import word_list, lexicon_list, openList
 import random
 
 """ This file includes caching method
@@ -32,7 +32,7 @@ def do_cache(word):
 	if word != "":
 		if word in word_list:
 			# do cache
-			cached_data[word_list[word]] = get_date() # to do waiting for Jiankai's API
+			cached_data[word_list[word]] = openList(word_list[word]) # to do waiting for Jiankai's API
 		else:
 			# could not cache
 			return False
@@ -40,7 +40,7 @@ def do_cache(word):
 		while True:
 			t = random.uniform(0, 3091674)
 			if not is_cached(t):
-				cached_data[t] = get_date()
+				cached_data[t] = openList(word_list[word])
 				break
 	return True
 

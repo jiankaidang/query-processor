@@ -13,6 +13,7 @@ from queryParser import parse
 
 ################## Initialize Lexicon and Doc meta data part######################
 class lexicon_node:
+#    lexicon class
     def __init__(self):
         self.start = -1 # line number in lexicon file
         self.total = -1
@@ -23,6 +24,7 @@ class lexicon_node:
         print self.file_name, str(self.total), str(self.start), str(self.length)
 
 class doc_node:
+#    doc meta class
     def __init__(self):
         self.url = -1
         self.id = -1
@@ -34,16 +36,17 @@ class doc_node:
     def display(self):
         print self.url, str(self.id), str(self.total), str(self.pr)
 
+# hard code here
 lexicon_file_line_number = 3091675
 
 def build_lexicon(path):
+#    read in lexicon file into memory
     global lexicon_list
     global word_list
     global d_avg
     is_init = False
-    t = lexicon_node()
     for i in range(0, lexicon_file_line_number):
-        lexicon_list.append(t)
+        lexicon_list.append(lexicon_node())
     for line in open(path):
         w = line.split()
         if len(w) == 6:
@@ -59,6 +62,7 @@ def build_lexicon(path):
     return
 
 def build_doc_meta_data(path):
+#    read in doc meta data file into memory
     global doc_list
     global doc_meta
     is_init = False
@@ -79,6 +83,7 @@ def build_doc_meta_data(path):
             continue
     return
 
+# basic variables initialization here
 top = 10
 d_avg = 0.0
 #main function
@@ -113,6 +118,7 @@ def getFreq(list_posting):
 ################## Search APIs######################
 
 def compute_BM25(terms, did, freq):
+#    function to calculate BM25 score
     global max_doc_id
     global d_avg
     res = 0.0
@@ -132,6 +138,7 @@ def compute_BM25(terms, did, freq):
     return res
 
 def compute_score(terms, did, freq):
+#    compute score based on BM25,
     BM25 = compute_BM25(terms, did, freq)
     k1 = 1.0
     PageRank = doc_meta[did].pr
@@ -147,7 +154,7 @@ def compute_score(terms, did, freq):
         res *= (1.0 + 1.0/AlexRank)
     return res
 
-def search_query(query):
+def search_query(query, complex = False):
     global max_doc_id
     global top
     res = []
@@ -206,7 +213,8 @@ def search_query(query):
         res.append(  (res_q[i][0], url, res_q[i][1])  )
 
     display_simple_result(res)
-    res = display_complex_result(res, query)
+    if complex:
+        res = display_complex_result(res, query)
 
     return res
 
@@ -237,15 +245,16 @@ def display_complex_result(result_set, query):
 
 ################## Display APIs######################
 
-
-
-
+# main function
 while(True):
-    input = raw_input(">")
+    input = raw_input("> input query: search, search-complex or quit\n")
     if(input == "quit"):
     	break
     if input == "search":
         query = raw_input("your query: ")
         result_set = search_query(query)
+    elif input == "search-complex":
+        query = raw_input("your query: ")
+        result_set = search_query(query, True)
     else:
         print "error: invalid command"
