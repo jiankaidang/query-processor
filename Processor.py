@@ -5,7 +5,6 @@ from encode import decode7bit
 from getPageRank import getPageRank, getAlexaRank
 from checkResult import check_result
 from queryParser import parse
-from makeCache import make_decision_and_do_cache, is_cached, get_cache_data
 
 #
 #comand list:
@@ -22,7 +21,7 @@ class lexicon_node:
         self.start = -1 # line number in lexicon file
         self.total = -1
         self.did = -1
-#        self.number = -1
+        #        self.number = -1
 
     def display(self):
         print self.file_name, str(self.total), str(self.start), str(self.length)
@@ -112,30 +111,38 @@ def openList(term, getCache = False):
     if getCache:
         if is_cached(term):
             return get_cache_data(term)
-    
+
     print term
     lexicon_node_obj = lexicon_list[term]
     print lexicon_node_obj.did
     print lexicon_node_obj.start
     print lexicon_node_obj.total
-    list_posting = {}
+    list_posting = {
+        "current_posting_index": 0,
+        "postings": []
+    }
     list_data = linecache.getline("InvertedIndex/inverted_index_new/" + str(lexicon_node_obj.did),
                                   lexicon_node_obj.start).split()
     for i in range(0, len(list_data), 2):
         if i != 0:
             list_data[i] = list_data[i - 2] + decode7bit(list_data[i])
         did = list_data[i]
-        list_posting[did] = {
-            "freq": decode7bit(list_data[i + 1]),
-            "nextGEQ": did + decode7bit(list_data[i + 2])
-        }
+        list_posting["postings"].append({
+            "did": did,
+            "freq": decode7bit(list_data[i + 1])
+        })
     return list_posting
 def closeList(term):
-     return
+    return
 def nextGEQ(list_posting, k_docID):
-    return list_posting[k_docID]["nextGEQ"]
+    current_posting_index = list_posting["current_posting_index"]
+    if list_posting["postings"][current_posting_index]["did"] == k_docID:
+        return k_docID
+    current_posting_index += 1
+    list_posting["current_posting_index"] = current_posting_index
+    return list_posting["postings"][current_posting_index]
 def getFreq(list_posting, k_docID):
-    return list_posting[k_docID]["freq"]
+    return list_posting["postings"][list_posting["current_posting_index"]]["freq"]
 
 #DaaT functions end
 ################## Basic Search APIs ######################
@@ -193,11 +200,11 @@ def search_query(query, complex = False):
         ip.append(openList(word_list[q]))
     if len(ip) == 0:
         return res
-    
+
     res_q = [] # heap of #top results
     num = len(ip)
     did = 0
-    
+
     while(did < max_doc_id):
         # get next post from shortest list
         did = nextGEQ(ip[0], did)
@@ -209,7 +216,7 @@ def search_query(query, complex = False):
             d = nextGEQ(ip[i], did)
             if d != did:
                 break
-        # not in intersection
+                # not in intersection
         if d > did:
             did = d
         else:
@@ -217,7 +224,7 @@ def search_query(query, complex = False):
             # for (i=0; i<num; i++)  f[i] = getFreq(lp[i], did);
             f = []
             for i in range(0, num):
-                f.append(getFreq(ip[i]))
+                f.append(getFreq(ip[i], did))
 
             # compute BM25 score from frequencies and other data
             temp = compute_score(query, did, f)
@@ -226,7 +233,7 @@ def search_query(query, complex = False):
             elif res_q[0][0] < temp:
                 heappop(res_q)
                 heappush(res_q, (temp, did))
-            # to do top10, using priority queue
+                # to do top10, using priority queue
 
             # and increase did to search for next post
             did = did+1
@@ -257,17 +264,70 @@ def display_simple_result(result_set):
     return
 
 def display_complex_result(result_set, query):
-     print "There are " + str(len(result_set)) + " querries.\n Complex Result:\n"
-# check duplicate and none-visitable result
-     result_set = check_result(query, result_set)
-     for i in range(0, len(result_set)):
+    print "There are " + str(len(result_set)) + " querries.\n Complex Result:\n"
+    # check duplicate and none-visitable result
+    result_set = check_result(query, result_set)
+    for i in range(0, len(result_set)):
         print "Result #" + str(i)
         r = result_set[i][0]
         print r[0], r[1], r[2]
         print result_set[i][1]
-     return result_set
+    return result_set
 
 
+""" This file includes caching method
+"""
+
+def make_decision_and_do_cache(cache_num = 500000, path = "EnglishWordFrequency2.txt"):
+#    This function selects terms to do cache
+#    This function read a bag of words with frequency in common English. In decending order of this frequency, do cache.
+    cached_num = 0
+    for line in open(path):
+        line = line.split()
+        if len(line) == 3:
+            word = line[0]
+            freq = int(line[1])
+            if do_cache(word):
+                cached_num += 1
+            if cached_num == cache_num:
+                break
+        else:
+            pass
+    if cached_num < cache_num:
+        for i in range(cache_num, cache_num):
+            do_cache("")
+
+def do_cache(word):
+#    this function fo cache of selected word
+#    if no word as input, do cache of a random word not cached
+#    return true if cache successfully
+#    return false if not
+    #if word == "", do random
+    if word != "":
+        if word in word_list:
+            # do cache
+            cached_data[word_list[word]] = openList(word_list[word]) # to do waiting for Jiankai's API
+        else:
+            # could not cache
+            return False
+    else:
+        while True:
+            t = random.uniform(0, 3091674)
+            if not is_cached(t):
+                cached_data[t] = openList(word_list[word])
+                break
+    return True
+
+def is_cached(word_id):
+#    check if the word with this word id is cached
+    return word_id in cached_data
+
+def get_cache_data(word_id):
+#    given a word_id, return the cached data
+    if word_id in cached_data:
+        return cached_data[word_id]
+
+cached_data = {}
 ################## Display APIs######################
 
 # main function
@@ -275,7 +335,7 @@ make_decision_and_do_cache()
 while(True):
     input = raw_input("> input query: search, search-complex or quit\n")
     if(input == "quit"):
-    	break
+        break
     if input == "search":
         query = raw_input("your query: ")
         result_set = search_query(query)
