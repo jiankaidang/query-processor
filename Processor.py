@@ -1,5 +1,7 @@
 from heapq import heappush, heappop
+import linecache
 from math import log
+from encode import decode7bit
 from getPageRank import getPageRank, getAlexaRank
 from checkResult import check_result
 from queryParser import parse
@@ -99,13 +101,29 @@ max_doc_id = len(doc_list)
 #DaaT functions begin
 
 def openList(term):
-     return
+    print term
+    lexicon_node_obj = lexicon_list[term]
+    print lexicon_node_obj.did
+    print lexicon_node_obj.start
+    print lexicon_node_obj.total
+    list_posting = {}
+    list_data = linecache.getline("InvertedIndex/inverted_index_new/" + str(lexicon_node_obj.did),
+                                  lexicon_node_obj.start).split()
+    for i in range(0, len(list_data), 2):
+        if i != 0:
+            list_data[i] = list_data[i - 2] + decode7bit(list_data[i])
+        did = list_data[i]
+        list_posting[did] = {
+            "freq": decode7bit(list_data[i + 1]),
+            "nextGEQ": did + decode7bit(list_data[i + 2])
+        }
+    return list_posting
 def closeList(term):
      return
 def nextGEQ(list_posting, k_docID):
-     return
-def getFreq(list_posting):
-     return
+    return list_posting[k_docID]["nextGEQ"]
+def getFreq(list_posting, k_docID):
+    return list_posting[k_docID]["freq"]
 
 #DaaT functions end
 ################## Basic Search APIs ######################
