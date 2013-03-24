@@ -17,7 +17,7 @@ class lexicon_node:
         self.data_num = data_num
 
 
-data_set_dir = "LargeDateset/"
+data_set_dir = "/Users/charnugagoo/Documents/Workspace/InvertedIndexLargeDataSet/LargeDateset/"
 inverted_index_set_dir = data_set_dir + "InvertedIndex_large_set/"
 gz_suffix = ".gz"
 txt_suffix = ".txt"
@@ -27,7 +27,7 @@ if not os.path.exists(inverted_index_dir):
 lexicon_file = open(data_set_dir + "LexiconMetaData_large_set.txt", "r")
 lexicon_lines = lexicon_file.readlines()
 lexicon_map = {}
-for lexicon_line in lexicon_lines[1:5]:
+for lexicon_line in lexicon_lines[1:]:
     print lexicon_line
     lexicon_data = lexicon_line.split()
     term = lexicon_data[0]
