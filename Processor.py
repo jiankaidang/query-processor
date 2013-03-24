@@ -3,6 +3,7 @@ from math import log
 from getPageRank import getPageRank, getAlexaRank
 from checkResult import check_result
 from queryParser import parse
+from makeCache import make_decision_and_do_cache
 #
 #comand list:
 #quit
@@ -246,6 +247,7 @@ def display_complex_result(result_set, query):
 ################## Display APIs######################
 
 # main function
+make_decision_and_do_cache()
 while(True):
     input = raw_input("> input query: search, search-complex or quit\n")
     if(input == "quit"):

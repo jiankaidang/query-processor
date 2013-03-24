@@ -4,7 +4,7 @@ import random
 """ This file includes caching method
 """
 
-def make_decision(cache_num = 300000, path = "EnglishWordFrequency2.txt"):
+def make_decision_and_do_cache(cache_num = 500000, path = "EnglishWordFrequency2.txt"):
 #    This function selects terms to do cache
 #    This function read a bag of words with frequency in common English. In decending order of this frequency, do cache.
 	cached_num = 0

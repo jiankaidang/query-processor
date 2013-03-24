@@ -2,8 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="70205600-b3d5-4bc4-ab65-d4373e588c66" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/IndexCompression/IndexCompression.py" afterPath="$PROJECT_DIR$/IndexCompression/IndexCompression.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Processor.py" afterPath="$PROJECT_DIR$/Processor.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/makeCache.py" afterPath="$PROJECT_DIR$/makeCache.py" />
     </list>
@@ -28,8 +26,10 @@
       <file leaf-file-name="Processor.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Processor.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="42" column="37" selection-start="1012" selection-end="1012" vertical-scroll-proportion="0.0">
-              <folding />
+            <state line="5" column="48" selection-start="222" selection-end="222" vertical-scroll-proportion="0.0">
+              <folding>
+                <element signature="e#0#35#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -37,7 +37,7 @@
       <file leaf-file-name="makeCache.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/makeCache.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="36" column="29" selection-start="1060" selection-end="1060" vertical-scroll-proportion="0.5155039">
+            <state line="55" column="16" selection-start="1499" selection-end="1499" vertical-scroll-proportion="1.0658915">
               <folding>
                 <element signature="e#0#55#0" expanded="true" />
               </folding>
@@ -81,8 +81,8 @@
         <option value="$PROJECT_DIR$/getPageRank.py" />
         <option value="$PROJECT_DIR$/checkResult.py" />
         <option value="$PROJECT_DIR$/IndexCompression/IndexCompression.py" />
-        <option value="$PROJECT_DIR$/Processor.py" />
         <option value="$PROJECT_DIR$/makeCache.py" />
+        <option value="$PROJECT_DIR$/Processor.py" />
       </list>
     </option>
   </component>
@@ -326,7 +326,9 @@
     <entry file="file://$PROJECT_DIR$/Processor.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="233" column="0" selection-start="6002" selection-end="6002" vertical-scroll-proportion="0.0">
-          <folding />
+          <folding>
+            <element signature="e#0#35#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -363,21 +365,27 @@
     <entry file="file://$PROJECT_DIR$/Processor.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="235" column="0" selection-start="6036" selection-end="6036" vertical-scroll-proportion="0.0">
-          <folding />
+          <folding>
+            <element signature="e#0#35#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Processor.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="82" column="10" selection-start="2132" selection-end="2132" vertical-scroll-proportion="0.0">
-          <folding />
+          <folding>
+            <element signature="e#0#35#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Processor.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="72" column="0" selection-start="1700" selection-end="1700" vertical-scroll-proportion="0.0">
-          <folding />
+          <folding>
+            <element signature="e#0#35#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -423,14 +431,16 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Processor.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="42" column="37" selection-start="1012" selection-end="1012" vertical-scroll-proportion="0.0">
-          <folding />
+        <state line="5" column="48" selection-start="222" selection-end="222" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="e#0#35#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/makeCache.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="36" column="29" selection-start="1060" selection-end="1060" vertical-scroll-proportion="0.5155039">
+        <state line="55" column="16" selection-start="1499" selection-end="1499" vertical-scroll-proportion="1.0658915">
           <folding>
             <element signature="e#0#55#0" expanded="true" />
           </folding>
