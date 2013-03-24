@@ -72,7 +72,8 @@ for i in range(66):
             lexicon_node_obj.term_id,
             lexicon_node_obj.file_name,
             lexicon_node_obj.f_t,
-            str(line_num)
+            str(line_num),
+            lexicon_node_obj.data_num
         ]) + "\n")
         start_index = lexicon_node_obj.start
         for i in range(start_index, start_index + lexicon_node_obj.data_num):
