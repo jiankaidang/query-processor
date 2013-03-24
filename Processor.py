@@ -14,10 +14,9 @@ from queryParser import parse
 ################## Initialize Lexicon and Doc meta data part######################
 class lexicon_node:
     def __init__(self):
-        self.start = -1
-        self.length = -1
+        self.start = -1 # line number in lexicon file
         self.total = -1
-        self.file_name = ""
+        self.did = -1
 #        self.number = -1
 
     def display(self):
@@ -35,31 +34,28 @@ class doc_node:
     def display(self):
         print self.url, str(self.id), str(self.total), str(self.pr)
 
+lexicon_file_line_number = 3091675
 
 def build_lexicon(path):
     global lexicon_list
     global word_list
     global d_avg
     is_init = False
-    l = 0
+    t = lexicon_node()
+    for i in range(0, lexicon_file_line_number):
+        lexicon_list.append(t)
     for line in open(path):
         w = line.split()
-        if len(w) == 1 and is_init == False:
-            t = lexicon_node()
-            l = int(w[0])
-            for i in range(0, l):
-                lexicon_list.append(t)
-        elif len(w) == 6:
+        if len(w) == 6:
             id = int(w[1])
             word_list[w[0]] = id
             lexicon_list[id].start = w[4]
-            lexicon_list[id].length = w[5]
             lexicon_list[id].total = w[3]
-            lexicon_list[id].file_name = w[2]
+            lexicon_list[id].did = w[2]
             d_avg += float(w[5])
         else:
             continue
-    d_avg /= float(l)
+    d_avg /= float(lexicon_file_line_number)
     return
 
 def build_doc_meta_data(path):
