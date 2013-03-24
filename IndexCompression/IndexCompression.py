@@ -21,7 +21,7 @@ data_set_dir = "/Users/charnugagoo/Documents/Workspace/InvertedIndexLargeDataSet
 inverted_index_set_dir = data_set_dir + "InvertedIndex_large_set/"
 gz_suffix = ".gz"
 txt_suffix = ".txt"
-inverted_index_dir = "inverted_index"
+inverted_index_dir = data_set_dir + "inverted_index_new"
 if not os.path.exists(inverted_index_dir):
     os.mkdir(inverted_index_dir)
 lexicon_file = open(data_set_dir + "LexiconMetaData_large_set.txt", "r")
