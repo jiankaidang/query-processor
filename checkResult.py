@@ -2,6 +2,7 @@ import simHash
 import urllib2
 
 def get_content(url):
+#    get latest the content of an url
     res = "none"
 
     if url.find("http://") == -1:
@@ -17,7 +18,7 @@ def get_content(url):
             # If the server cannot send a response which is acceptable according to the combined Accept field value,
             # then the server SHOULD send a 406 (not acceptable) response.
             "Accept": "text/html,application/xhtml+xml"
-        }), timeout=3)
+        }), timeout=1)
         res = pageToVisit.read()
         pageToVisit.close()
     except Exception:
@@ -39,6 +40,8 @@ def check_content(Content):
     return True;
 
 def check_result(terms, result_set):
+#    check the result set, if all page is open-able
+#    also show a sample 140 char of result page
     global hash_content
     hash_content = []
     res = []
@@ -55,12 +58,12 @@ def check_result(terms, result_set):
                 i = content.find(term)
                 if i == -1:
                     continue
-                substr = content(i: min(len(content, (i+140)) )
+                substr = content[i: min(len(content), (i+140)) ]
                 cc = 0
                 for term2 in terms:
                     if substr.find(term2):
                         cc += 1
-                if cc > res_sub_str_num
+                if cc > res_sub_str_num:
                     res_sub_str = substr
                     res_sub_str_num = cc
             res.append( (r, res_sub_str) )
