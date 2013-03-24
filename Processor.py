@@ -110,8 +110,8 @@ max_doc_id = len(doc_list)
 def openList(term, getCache = False):
 
     if getCache:
-        if is_cached(word_list(term)):
-            return get_cache_data(word_list(term))
+        if is_cached(term):
+            return get_cache_data(term)
     
     print term
     lexicon_node_obj = lexicon_list[term]
@@ -217,7 +217,7 @@ def search_query(query, complex = False):
             # for (i=0; i<num; i++)  f[i] = getFreq(lp[i], did);
             f = []
             for i in range(0, num):
-                f.append(getFreq(ip[i], did))
+                f.append(getFreq(ip[i]))
 
             # compute BM25 score from frequencies and other data
             temp = compute_score(query, did, f)
