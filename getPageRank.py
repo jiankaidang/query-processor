@@ -193,7 +193,7 @@ def getPageRank(url):
     if url.find('/') != -1:
         url = url[: url.find('/')]
     res = -1
-    for i in range(0, 3):
+    for i in range(0, 1):
         try:
             p = GooglePageRank()
             res = p.get_rank(url)
@@ -208,7 +208,7 @@ def getAlexaRank(url):
 #    given a url, return the AlexaRank number
 #    no format needed
     res = -1
-    for i in range(0, 3):
+    for i in range(0, 1):
         try:
             p = AlexaTrafficRank()
             res = p.get_rank(url)

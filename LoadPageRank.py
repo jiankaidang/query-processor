@@ -7,7 +7,7 @@ for line in open(path + "DocMetaData_large_set.txt"):
     cnt += 1
     w = line.split()
     if len(w) == 1:
-        file.write(w[0])
+        file.write(w[0] + "\n")
     elif len(w) == 4:
         file.write(w[0] + " ")
         file.write(w[1] + " ")
@@ -16,6 +16,8 @@ for line in open(path + "DocMetaData_large_set.txt"):
         ar = float(getAlexaRank(w[1]))
         file.write(str(pr) + " ")
         file.write(str(ar) + "\n")
+    elif:
+        file.write(line + "\n")
     else:
         continue
 file.close()
