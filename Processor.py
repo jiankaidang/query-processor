@@ -2,10 +2,8 @@ from heapq import heappush, heappop
 from math import log
 import random
 from encode import decode7bit
-from getPageRank import getPageRank, getAlexaRank
 from checkResult import check_result
 from queryParser import parse
-from time import sleep
 
 #
 #comand list:
@@ -99,7 +97,9 @@ def openList(term, getCache = False):
 # term is a list of word id
     if getCache:
         if is_cached(term):
-            return get_cache_data(term)
+            data = get_cache_data(term)
+            data["current_posting_index"] = 0
+            return data
 
     print term
     lexicon_node_obj = lexicon_list[term]
