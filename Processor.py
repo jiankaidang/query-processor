@@ -143,13 +143,13 @@ def closeList(term):
     return
 def nextGEQ(list_posting, k_docID):
     current_posting_index = list_posting["current_posting_index"]
-    if list_posting["postings"][current_posting_index]["did"] == k_docID:
-        return k_docID
-    current_posting_index += 1
-    if current_posting_index >= len(list_posting["postings"]):
-        return max_doc_id
-    list_posting["current_posting_index"] = current_posting_index
-    return list_posting["postings"][current_posting_index]["did"]
+    while current_posting_index < len(list_posting["postings"]):
+        did = list_posting["postings"][current_posting_index]["did"]
+        if did >= k_docID:
+            return did
+        current_posting_index += 1
+        list_posting["current_posting_index"] = current_posting_index
+    return max_doc_id
 def getFreq(list_posting):
     return list_posting["postings"][list_posting["current_posting_index"]]["freq"]
 
