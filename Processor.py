@@ -146,6 +146,8 @@ def nextGEQ(list_posting, k_docID):
     if list_posting["postings"][current_posting_index]["did"] == k_docID:
         return k_docID
     current_posting_index += 1
+    if current_posting_index >= len(list_posting["postings"]):
+        return max_doc_id
     list_posting["current_posting_index"] = current_posting_index
     return list_posting["postings"][current_posting_index]["did"]
 def getFreq(list_posting):
