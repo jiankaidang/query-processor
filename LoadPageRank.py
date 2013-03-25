@@ -1,8 +1,8 @@
 from getPageRank import getPageRank, getAlexaRank
 path = "/Users/charnugagoo/Documents/Workspace/InvertedIndexLargeDataSet/LargeDateset/"
-file = open(path + "DocMetaData_large_set_with_pageRank.txt", 'w')
+file = open(path + "DocMetaData_large_set_with_pageRank_new.txt", 'w')
 cnt = 0
-for line in open(path + "DocMetaData_large_set.txt"):
+for line in open(path + "DocMetaData_large_set_with_pageRank.txt"):
     print cnt
     cnt += 1
     w = line.split()
@@ -16,8 +16,6 @@ for line in open(path + "DocMetaData_large_set.txt"):
         ar = float(getAlexaRank(w[1]))
         file.write(str(pr) + " ")
         file.write(str(ar) + "\n")
-    elif:
-        file.write(line + "\n")
     else:
-        continue
+        file.write(line + "\n")
 file.close()
