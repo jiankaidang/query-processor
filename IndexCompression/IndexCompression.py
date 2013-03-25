@@ -17,7 +17,7 @@ class lexicon_node:
         self.data_num = data_num
 
 
-data_set_dir = "LargeDateset/"
+data_set_dir = "/Users/charnugagoo/Documents/Workspace/InvertedIndexLargeDataSet/LargeDateset/"#"LargeDateset/"
 inverted_index_set_dir = data_set_dir + "InvertedIndex_large_set/"
 gz_suffix = ".gz"
 txt_suffix = ".txt"
@@ -27,7 +27,7 @@ if not os.path.exists(inverted_index_dir):
 lexicon_file = open(data_set_dir + "LexiconMetaData_large_set.txt", "r")
 lexicon_lines = lexicon_file.readlines()
 lexicon_map = {}
-for lexicon_line in lexicon_lines[1:6]:
+for lexicon_line in lexicon_lines[1:]:
     print lexicon_line
     lexicon_data = lexicon_line.split()
     term = lexicon_data[0]
@@ -40,7 +40,7 @@ for lexicon_line in lexicon_lines[1:6]:
     lexicon_map[inverted_index_file + "-" + str(start_index)] = lexicon_node_obj
 lexicon_file.close()
 lexicon_info = []
-for i in range(1):
+for i in range(66):
     print "doc" + str(i)
     doc_start = datetime.now()
     print doc_start
@@ -65,7 +65,7 @@ for i in range(1):
     print d_array_len
     previous_offset = 0
     count = 0
-    while index < d_array_len and count < 2:
+    while index < d_array_len:
         count += 1
         print inverted_index_file + "-" + str(index)
         lexicon_node_obj = lexicon_map[inverted_index_file + "-" + str(index)]
@@ -98,7 +98,7 @@ for i in range(1):
     doc_end = datetime.now()
     print "doc" + str(i) + "end time:" + str(doc_end)
     print "doc" + str(i) + "duration" + str(doc_end - doc_start)
-lexicon = open("lexicon", "wb")
+lexicon = open(data_set_dir + "Lexicon_new", "wb")
 lexicon_final = ""
 for lexicon_data_content in lexicon_info:
     lexicon_final += " ".join(lexicon_data_content) + "\n"
