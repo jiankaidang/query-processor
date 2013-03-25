@@ -125,9 +125,9 @@ def openList(term, getCache = False):
     }
     list_file = open("IndexCompression/LargeDateset/inverted_index_new/" + str(lexicon_node_obj.did), "rb")
     list_file.seek(int(lexicon_node_obj.start))
-    list_data_str = list_file.read(int(lexicon_node_obj.len))
+    list_data_str = list_file.read(int(lexicon_node_obj.length))
     print "lexicon_node_obj.start:" + str(lexicon_node_obj.start)
-    print "lexicon_node_obj.len:" + str(lexicon_node_obj.len)
+    print "lexicon_node_obj.len:" + str(lexicon_node_obj.length)
     list_data = decode7bit(list_data_str)
     list_file.close()
     print "len(list_data):---" + str(len(list_data))
@@ -352,4 +352,4 @@ while(True):
         result_set = search_query(query, True)
     else:
         print "error: invalid command"
-################## Main Function######################
+        ################## Main Function######################
