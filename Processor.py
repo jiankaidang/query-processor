@@ -5,6 +5,7 @@ from encode import decode7bit
 from getPageRank import getPageRank, getAlexaRank
 from checkResult import check_result
 from queryParser import parse
+from time import sleep
 
 #
 #comand list:
@@ -82,26 +83,12 @@ def build_doc_meta_data(path):
             doc_list[w[1]] = id
             doc_meta[id].url = w[1]
             doc_meta[id].total = w[2]
-            doc_meta[id].pr = float(getPageRank(w[1]))
-            doc_meta[id].ar = float(getAlexaRank(w[1]))
+#            doc_meta[id].pr = float(getPageRank(w[1]))
+#            doc_meta[id].ar = float(getAlexaRank(w[1]))
         else:
             continue
     return
 
-# basic variables initialization here
-top = 10
-d_avg = 0.0
-#main function
-doc_list = {}
-doc_meta = []
-lexicon_list = []
-word_list = {}
-
-pwd = "/Users/charnugagoo/Documents/Workspace/InvertedIndexLargeDataSet/LargeDateset/"
-build_doc_meta_data(pwd + "DocMetaData_large_set.txt")
-build_lexicon(pwd + "LexiconMetaData_large_set.txt")
-result_set = []
-max_doc_id = len(doc_list)
 ################## Initialize Lexicon and Doc meta data part######################
 
 ################## Basic Search APIs ######################
@@ -109,7 +96,7 @@ max_doc_id = len(doc_list)
 #DaaT functions begin
 
 def openList(term, getCache = False):
-
+# term is a list of word id
     if getCache:
         if is_cached(term):
             return get_cache_data(term)
@@ -123,7 +110,7 @@ def openList(term, getCache = False):
         "current_posting_index": 0,
         "postings": []
     }
-    list_file = open("IndexCompression/LargeDateset/inverted_index_new/" + str(lexicon_node_obj.did), "rb")
+    list_file = open("/Users/charnugagoo/Documents/Workspace/InvertedIndexLargeDataSet/LargeDateset/inverted_index_new/" + str(lexicon_node_obj.did), "rb")
     list_file.seek(int(lexicon_node_obj.start))
     list_data_str = list_file.read(int(lexicon_node_obj.length))
     print "lexicon_node_obj.start:" + str(lexicon_node_obj.start)
@@ -200,21 +187,28 @@ def search_query(query, complex = False):
     global top
     res = []
     # query = query.split()
+    print query
     query = parse(query)
+    print query
     if len(query) == 0:
         return res
     ip = []
     d = []
     for q in query:
-        ip.append(openList(word_list[q]))
+        ip.append(word_list[q])
+    ip = openList(ip)
+    print ip
+
     if len(ip) == 0:
         return res
+
 
     res_q = [] # heap of #top results
     num = len(ip)
     did = 0
 
     while(did < max_doc_id):
+        print did
         # get next post from shortest list
         did = nextGEQ(ip[0], did)
 
@@ -225,6 +219,8 @@ def search_query(query, complex = False):
             d = nextGEQ(ip[i], did)
             if d != did:
                 break
+            print i
+            print d
                 # not in intersection
         if d > did:
             did = d
@@ -237,6 +233,7 @@ def search_query(query, complex = False):
 
             # compute BM25 score from frequencies and other data
             temp = compute_score(query, did, f)
+            print temp
             if len(res_q) < top:
                 heappush(res_q, (temp, did))
             elif res_q[0][0] < temp:
@@ -247,12 +244,12 @@ def search_query(query, complex = False):
             # and increase did to search for next post
             did = did+1
 
-    for i in range(0, num):
-        closeList(ip[i])
+#    for i in range(0, num):
+#        closeList(ip[i])
     for i in reversed(range(0, len(res_q))):
         url = doc_meta[ res_q[i][0] ].url
         res.append(  (res_q[i][0], url, res_q[i][1])  )
-
+    print res
     display_simple_result(res)
     if complex:
         res = display_complex_result(res, query)
@@ -292,6 +289,8 @@ def make_decision_and_do_cache(cache_num = 500000, path = "EnglishWordFrequency2
 #    This function read a bag of words with frequency in common English. In decending order of this frequency, do cache.
     cached_num = 0
     for line in open(path):
+        print "cached num:"
+        print cached_num
         line = line.split()
         if len(line) == 3:
             word = line[0]
@@ -335,13 +334,31 @@ def get_cache_data(word_id):
 #    given a word_id, return the cached data
     if word_id in cached_data:
         return cached_data[word_id]
-
-cached_data = {}
 ################## Cache APIs######################
 
 
 ################## Main Function######################
+# basic variables initialization here
+top = 10
+d_avg = 0.0
+#main function
+doc_list = {}
+doc_meta = []
+lexicon_list = []
+word_list = {}
+
+pwd = "/Users/charnugagoo/Documents/Workspace/InvertedIndexLargeDataSet/LargeDateset/"
+print "Building Doc Meta Data...\n"
+build_doc_meta_data(pwd + "DocMetaData_large_set.txt")
+print "Building Lexicon Meta Data..."
+build_lexicon(pwd + "Lexicon_new")
+result_set = []
+max_doc_id = len(doc_list)
+cached_data = {}
+print "Caching...\n"
 make_decision_and_do_cache()
+print "Cache done\n"
+
 while(True):
     input = raw_input("> input query: search, search-complex or quit\n")
     if(input == "quit"):
