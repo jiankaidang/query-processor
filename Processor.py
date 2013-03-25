@@ -1,5 +1,4 @@
 from heapq import heappush, heappop
-import linecache
 from math import log
 import random
 from encode import decode7bit
@@ -53,12 +52,13 @@ def build_lexicon(path):
         lexicon_list.append(lexicon_node())
     for line in open(path):
         w = line.split()
-        if len(w) == 6:
+        if len(w) == 7:
             id = int(w[1])
             word_list[w[0]] = id
             lexicon_list[id].start = w[4]
             lexicon_list[id].total = w[3]
             lexicon_list[id].did = w[2]
+            lexicon_list[id].len = w[6]
             d_avg += float(w[5])
         else:
             continue
@@ -122,15 +122,20 @@ def openList(term, getCache = False):
         "current_posting_index": 0,
         "postings": []
     }
-    list_data = linecache.getline("InvertedIndex/inverted_index_new/" + str(lexicon_node_obj.did),
-                                  lexicon_node_obj.start).split()
+    list_file = open("IndexCompression/LargeDateset/inverted_index_new/" + str(lexicon_node_obj.did), "rb")
+    list_file.seek(int(lexicon_node_obj.start))
+    list_data_str = list_file.read(int(lexicon_node_obj.len))
+    print "lexicon_node_obj.start:" + str(lexicon_node_obj.start)
+    print "lexicon_node_obj.len:" + str(lexicon_node_obj.len)
+    list_data = decode7bit(list_data_str)
+    list_file.close()
+    print "len(list_data):---" + str(len(list_data))
     for i in range(0, len(list_data), 2):
         if i != 0:
-            list_data[i] = list_data[i - 2] + decode7bit(list_data[i])
-        did = list_data[i]
+            list_data[i] = list_data[i - 2] + list_data[i]
         list_posting["postings"].append({
-            "did": did,
-            "freq": decode7bit(list_data[i + 1])
+            "did": list_data[i],
+            "freq": list_data[i + 1]
         })
     return list_posting
 def closeList(term):
@@ -141,8 +146,8 @@ def nextGEQ(list_posting, k_docID):
         return k_docID
     current_posting_index += 1
     list_posting["current_posting_index"] = current_posting_index
-    return list_posting["postings"][current_posting_index]
-def getFreq(list_posting, k_docID):
+    return list_posting["postings"][current_posting_index]["did"]
+def getFreq(list_posting):
     return list_posting["postings"][list_posting["current_posting_index"]]["freq"]
 
 #DaaT functions end
@@ -225,7 +230,7 @@ def search_query(query, complex = False):
             # for (i=0; i<num; i++)  f[i] = getFreq(lp[i], did);
             f = []
             for i in range(0, num):
-                f.append(getFreq(ip[i], did))
+                f.append(getFreq(ip[i]))
 
             # compute BM25 score from frequencies and other data
             temp = compute_score(query, did, f)

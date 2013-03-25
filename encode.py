@@ -21,15 +21,20 @@ import sys
 
 
 def decode7bit(bytes):
+    data = []
     bytes = list(bytes)
     value = 0
     shift = 0
-    while True:
+    while len(bytes) != 0:
         byteval = ord(bytes.pop(0))
-        if (byteval & 128) == 0: break
+        if (byteval & 128) == 0:
+            data.append(value | (byteval << shift))
+            shift = 0
+            value = 0
+            continue
         value |= ((byteval & 0x7F) << shift)
         shift += 7
-    return (value | (byteval << shift))
+    return data
 
 
 def encode7bit(value):
@@ -47,10 +52,10 @@ def main(argv):
 ##    print base62decode('q2a')
 ##    print base62encode(200048)
     x = encode7bit(1000)
+    y = encode7bit(100)
     print x
-    print decode7bit(x)
-    str_ = 'a' + x + ' ' + 'u'
-    print str_
+    print y
+    print decode7bit(x + y)
 
 
 if __name__ == "__main__":
