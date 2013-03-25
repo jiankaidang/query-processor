@@ -21,6 +21,7 @@ class lexicon_node:
         self.start = -1 # line number in lexicon file
         self.total = -1
         self.did = -1
+        self.length = -1
         #        self.number = -1
 
     def display(self):
@@ -58,7 +59,7 @@ def build_lexicon(path):
             lexicon_list[id].start = w[4]
             lexicon_list[id].total = w[3]
             lexicon_list[id].did = w[2]
-            lexicon_list[id].len = w[6]
+            lexicon_list[id].length = w[6]
             d_avg += float(w[5])
         else:
             continue
@@ -279,10 +280,10 @@ def display_complex_result(result_set, query):
         print r[0], r[1], r[2]
         print result_set[i][1]
     return result_set
+################## Display APIs######################
 
 
-""" This file includes caching method
-"""
+################## Cache APIs######################
 
 def make_decision_and_do_cache(cache_num = 500000, path = "EnglishWordFrequency2.txt"):
 #    This function selects terms to do cache
@@ -334,9 +335,10 @@ def get_cache_data(word_id):
         return cached_data[word_id]
 
 cached_data = {}
-################## Display APIs######################
+################## Cache APIs######################
 
-# main function
+
+################## Main Function######################
 make_decision_and_do_cache()
 while(True):
     input = raw_input("> input query: search, search-complex or quit\n")
@@ -350,3 +352,4 @@ while(True):
         result_set = search_query(query, True)
     else:
         print "error: invalid command"
+################## Main Function######################
