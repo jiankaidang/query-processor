@@ -93,11 +93,12 @@ def build_doc_meta_data(path):
 
 #DaaT functions begin
 
-def openList(term, getCache = False):
+def openList(term, getCache=False):
 # term is a list of word id
     if getCache:
         if is_cached(term):
             data = get_cache_data(term)
+            data["current_chunk_index"] = 0
             data["current_posting_index"] = 0
             return data
 
@@ -107,10 +108,14 @@ def openList(term, getCache = False):
     print lexicon_node_obj.start
     print lexicon_node_obj.total
     list_posting = {
+        "current_chunk_index": 0,
+        "current_chunk_position": lexicon_node_obj.start + lexicon_node_obj.length,
         "current_posting_index": 0,
-        "postings": []
+        "chunks": [],
+        "meta_data": [],
+        "did": lexicon_node_obj.did
     }
-    list_file = open("/Users/charnugagoo/Documents/Workspace/InvertedIndexLargeDataSet/LargeDateset/inverted_index_new/" + str(lexicon_node_obj.did), "rb")
+    list_file = open(pwd + str(lexicon_node_obj.did), "rb")
     list_file.seek(int(lexicon_node_obj.start))
     list_data_str = list_file.read(int(lexicon_node_obj.length))
     print "lexicon_node_obj.start:" + str(lexicon_node_obj.start)
@@ -120,25 +125,61 @@ def openList(term, getCache = False):
     print "len(list_data):---" + str(len(list_data))
     for i in range(0, len(list_data), 2):
         if i != 0:
-            list_data[i] = list_data[i - 2] + list_data[i]
-        list_posting["postings"].append({
+            list_data[i] += list_data[i - 2]
+        list_posting["meta_data"].append({
             "did": list_data[i],
-            "freq": list_data[i + 1]
+            "chunk_size": list_data[i + 1]
         })
     return list_posting
+
+
 def closeList(term):
     return
+
+
 def nextGEQ(list_posting, k_docID):
+    current_chunk_index = list_posting["current_chunk_index"]
+    meta_data = list_posting["meta_data"]
+    chunks = list_posting["chunks"]
     current_posting_index = list_posting["current_posting_index"]
-    while current_posting_index < len(list_posting["postings"]):
-        did = list_posting["postings"][current_posting_index]["did"]
+    while current_chunk_index < len(meta_data):
+        did = meta_data[current_chunk_index]["did"]
         if did >= k_docID:
-            return did
-        current_posting_index += 1
-        list_posting["current_posting_index"] = current_posting_index
+            if current_chunk_index < len(chunks):
+                for j in range(current_posting_index, len(chunks[current_chunk_index])):
+                    if chunks[current_chunk_index][j]["did"] >= k_docID:
+                        list_posting["current_posting_index"] = j
+                        return k_docID
+            else:
+                list_file = open(pwd + list_posting["did"], "rb")
+                list_file.seek(int(list_posting["current_chunk_position"]))
+                chunk_content = decode7bit(list_file.read(meta_data[current_chunk_index]["chunk_size"]))
+                chunk_postings = []
+                next_did = -1
+                for i in range(0, len(chunk_content), 2):
+                    if i != 0:
+                        chunk_content[i] += chunk_content[i - 2]
+                    elif current_chunk_index != 0:
+                        chunk_content[i] += meta_data[current_chunk_index - 1]["did"]
+                    chunk_postings.append({
+                        "did": chunk_content[i],
+                        "freq": chunk_content[i + 1]
+                    })
+                    if chunk_content[i] >= k_docID and next_did == -1:
+                        list_posting["current_posting_index"] = i / 2
+                        next_did = chunk_content[i]
+                list_posting["chunks"].append(chunk_postings)
+                list_posting["current_chunk_position"] = list_file.tell()
+                list_file.close()
+                if next_did != -1:
+                    list_posting["current_chunk_index"] = current_chunk_index
+                    return next_did
+        current_chunk_index += 1
     return max_doc_id
+
+
 def getFreq(list_posting):
-    return list_posting["postings"][list_posting["current_posting_index"]]["freq"]
+    return list_posting["chunks"][list_posting["current_chunk_index"]][list_posting["current_posting_index"]]["freq"]
 
 #DaaT functions end
 ################## Basic Search APIs ######################
