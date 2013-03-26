@@ -109,13 +109,13 @@ def openList(term, getCache=False):
     print lexicon_node_obj.total
     list_posting = {
         "current_chunk_index": 0,
-        "current_chunk_position": lexicon_node_obj.start + lexicon_node_obj.length,
         "current_posting_index": 0,
-        "chunks": [],
+        "chunks": {},
         "meta_data": [],
-        "did": lexicon_node_obj.did
+        "did": lexicon_node_obj.did,
+        "start": lexicon_node_obj.start + lexicon_node_obj.length
     }
-    list_file = open(pwd + str(lexicon_node_obj.did), "rb")
+    list_file = open(pwd + "inverted_index_new/" + str(lexicon_node_obj.did), "rb")
     list_file.seek(int(lexicon_node_obj.start))
     list_data_str = list_file.read(int(lexicon_node_obj.length))
     print "lexicon_node_obj.start:" + str(lexicon_node_obj.start)
@@ -138,21 +138,25 @@ def closeList(term):
 
 
 def nextGEQ(list_posting, k_docID):
-    current_chunk_index = list_posting["current_chunk_index"]
+    current_chunk_index = int(list_posting["current_chunk_index"])
     meta_data = list_posting["meta_data"]
     chunks = list_posting["chunks"]
-    current_posting_index = list_posting["current_posting_index"]
+    current_posting_index = int(list_posting["current_posting_index"])
     while current_chunk_index < len(meta_data):
         did = meta_data[current_chunk_index]["did"]
         if did >= k_docID:
-            if current_chunk_index < len(chunks):
+            if current_chunk_index in chunks:
                 for j in range(current_posting_index, len(chunks[current_chunk_index])):
-                    if chunks[current_chunk_index][j]["did"] >= k_docID:
+                    next_did = chunks[current_chunk_index][j]["did"]
+                    if next_did >= k_docID:
                         list_posting["current_posting_index"] = j
-                        return k_docID
+                        return next_did
             else:
-                list_file = open(pwd + list_posting["did"], "rb")
-                list_file.seek(int(list_posting["current_chunk_position"]))
+                list_file = open(pwd + "inverted_index_new/" + list_posting["did"], "rb")
+                size = int(list_posting["start"])
+                for meta_index in range(current_chunk_index):
+                    size += int(list_posting["meta_data"][meta_index]["chunk_size"])
+                list_file.seek(size)
                 chunk_content = decode7bit(list_file.read(meta_data[current_chunk_index]["chunk_size"]))
                 chunk_postings = []
                 next_did = -1
@@ -168,13 +172,13 @@ def nextGEQ(list_posting, k_docID):
                     if chunk_content[i] >= k_docID and next_did == -1:
                         list_posting["current_posting_index"] = i / 2
                         next_did = chunk_content[i]
-                list_posting["chunks"].append(chunk_postings)
-                list_posting["current_chunk_position"] = list_file.tell()
+                list_posting["chunks"][current_chunk_index] = chunk_postings
                 list_file.close()
                 if next_did != -1:
                     list_posting["current_chunk_index"] = current_chunk_index
                     return next_did
         current_chunk_index += 1
+        current_posting_index = 0
     return max_doc_id
 
 
