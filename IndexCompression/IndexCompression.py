@@ -63,35 +63,42 @@ for i in range(66):
     index = 0
     d_array_len = len(d_content_array)
     print d_array_len
-    previous_offset = 0
-    count = 0
+    data_str = ""
     while index < d_array_len:
-        count += 1
         print inverted_index_file + "-" + str(index)
         lexicon_node_obj = lexicon_map[inverted_index_file + "-" + str(index)]
-        current_offset = inverted_index_list.tell()
-        print "current_offset" + str(current_offset)
-        if index != 0:
-            lexicon_info[-1].append(str(current_offset - previous_offset))
+        start_index = lexicon_node_obj.start
+        chunk_content = ""
+        chunks_data = ""
+        meta_data = ""
+        previous_chunk_did = 0
+        for j in range(start_index, start_index + lexicon_node_obj.data_num):
+            d_content = int(d_content_array[j])
+            if j == start_index:
+                d_list = d_content
+            else:
+                d_list = d_content - int(d_content_array[j - 1])
+            chunk_content += encode7bit(int(d_list)) + encode7bit(int(f_content_array[j]))
+            if (j - start_index + 1) % 128 == 0 or j == start_index + lexicon_node_obj.data_num - 1:
+                chunk_did = d_content
+                meta_data += encode7bit(chunk_did - previous_chunk_did) + encode7bit(len(chunk_content))
+                previous_chunk_did = chunk_did
+                chunks_data += chunk_content
+                chunk_content = ""
+        current_offset = len(data_str)
+        print "current_offset:" + str(current_offset)
         lexicon_info.append([
             lexicon_node_obj.term,
             lexicon_node_obj.term_id,
             lexicon_node_obj.file_name,
             lexicon_node_obj.f_t,
             str(current_offset),
-            str(lexicon_node_obj.data_num)
+            str(lexicon_node_obj.data_num),
+            str(len(meta_data))
         ])
-        previous_offset = current_offset
-        start_index = lexicon_node_obj.start
-        for i in range(start_index, start_index + lexicon_node_obj.data_num):
-            d_content = d_content_array[i]
-            if i == start_index:
-                d_list = d_content
-            else:
-                d_list = int(d_content) - int(d_content_array[i - 1])
-            inverted_index_list.write(encode7bit(int(d_list)) + encode7bit(int(f_content_array[i])))
+        data_str += meta_data + chunks_data
         index += lexicon_node_obj.data_num
-    lexicon_info[-1].append(str(inverted_index_list.tell() - previous_offset))
+    inverted_index_list.write(data_str)
     inverted_index_list.close()
     inverted_index_data_file.close()
     inverted_index_f_file.close()
