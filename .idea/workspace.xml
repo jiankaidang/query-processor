@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="70205600-b3d5-4bc4-ab65-d4373e588c66" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Processor.py" afterPath="$PROJECT_DIR$/Processor.py" />
-    </list>
+    <list default="true" id="70205600-b3d5-4bc4-ab65-d4373e588c66" name="Default" comment="" />
     <ignored path="query-processor.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="TRACKING_ENABLED" value="true" />
