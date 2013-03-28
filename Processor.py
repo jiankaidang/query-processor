@@ -200,7 +200,7 @@ def compute_BM25(terms, did, freq):
     if len(terms) != len(freq):
         print "error: len(terms) != len(freq)\n"
     n = float(len(terms))
-    d = float(doc_meta[did].length)
+    d = float(doc_meta[did].total)
     k1 = 1.2
     b = 0.75
     K = k1*(1 - b + b * d / d_avg)
@@ -234,14 +234,22 @@ def search_query(query, complex = False):
     # query = query.split()
     print query
     query = parse(query)
+    qq = []
+    for qt in query:
+        if qt in word_list:
+            qq.append(qt)
+    query = qq
+    print "Query are: "
     print query
     if len(query) == 0:
         return res
     ip = []
     d = []
     for q in query:
-        ip.append(word_list[q])
-    ip = openList(ip)
+#        ip.append(word_list[q])
+        ip.append(openList(word_list[q]))
+#    ip = openList(ip)??? openList one term??
+    print "ip are: "
     print ip
 
     if len(ip) == 0:
@@ -275,9 +283,11 @@ def search_query(query, complex = False):
             f = []
             for i in range(0, num):
                 f.append(getFreq(ip[i]))
-
+            print "get one page, id: "
+            print did
             # compute BM25 score from frequencies and other data
             temp = compute_score(query, did, f)
+            print "score: "
             print temp
             if len(res_q) < top:
                 heappush(res_q, (temp, did))
@@ -411,9 +421,16 @@ while(True):
     if input == "search":
         query = raw_input("your query: ")
         result_set = search_query(query)
+#        try:
+#            result_set = search_query(query)
+#        except Exception:
+#            print Exception
     elif input == "search-complex":
         query = raw_input("your query: ")
-        result_set = search_query(query, True)
+        try:
+            result_set = search_query(query, True)
+        except Exception:
+            print Exception
     else:
         print "error: invalid command"
         ################## Main Function######################
