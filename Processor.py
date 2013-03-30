@@ -113,7 +113,7 @@ def openList(term, getCache=False):
         "chunks": {},
         "meta_data": [],
         "did": lexicon_node_obj.did,
-        "start": lexicon_node_obj.start + lexicon_node_obj.length
+        "start": int(lexicon_node_obj.start) + int(lexicon_node_obj.length)
     }
     list_file = open(pwd + "inverted_index_new/" + str(lexicon_node_obj.did), "rb")
     list_file.seek(int(lexicon_node_obj.start))
