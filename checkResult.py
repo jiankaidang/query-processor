@@ -18,7 +18,7 @@ def get_content(url):
             # If the server cannot send a response which is acceptable according to the combined Accept field value,
             # then the server SHOULD send a 406 (not acceptable) response.
             "Accept": "text/html,application/xhtml+xml"
-        }), timeout=1)
+        }), timeout=3)
         res = pageToVisit.read()
         pageToVisit.close()
     except Exception:
@@ -58,14 +58,15 @@ def check_result(terms, result_set):
                 i = content.find(term)
                 if i == -1:
                     continue
-                substr = content[i: min(len(content), (i+140)) ]
+                sub_str = content[i: min(len(content), (i+140)) ]
                 cc = 0
                 for term2 in terms:
-                    if substr.find(term2):
+                    if sub_str.find(term2):
                         cc += 1
                 if cc > res_sub_str_num:
-                    res_sub_str = substr
+                    res_sub_str = sub_str
                     res_sub_str_num = cc
+#            print res_sub_str
             res.append( (r, res_sub_str) )
     return res
 

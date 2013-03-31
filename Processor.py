@@ -199,14 +199,16 @@ def compute_BM25(terms, did, freq):
         return -1.0
     if len(terms) != len(freq):
         print "error: len(terms) != len(freq)\n"
-    n = float(len(terms))
+    n = 2635851.0
     d = float(doc_meta[did].total)
     k1 = 1.2
     b = 0.75
     K = k1*(1 - b + b * d / d_avg)
     for i in range(0, len(terms)):
-        ft = float(   lexicon_list[word_list[terms[i]]].total )
         fdt = float(freq[i])
+        ft = float(   lexicon_list[word_list[terms[i]]].total )/fdt
+        if n < ft:
+            ft = n
         res += log((n - ft + 0.5)/(ft + 0.5)) * (k1 + 1.0) * fdt / (K + fdt)
     return res
 
@@ -214,8 +216,14 @@ def compute_score(terms, did, freq):
 #    compute score based on BM25,
     BM25 = compute_BM25(terms, did, freq)
     k1 = 1.0
-    PageRank = doc_meta[did].pr
-    AlexRank = doc_meta[did].ar
+    try:
+        PageRank = doc_meta[did].pr
+        AlexRank = doc_meta[did].ar
+    except Exception:
+        print "did out of range"
+        print did
+        PageRank = -1
+        AlexRank = -1
     res = BM25
     if PageRank < 0:
         res *= k1*1.0
@@ -261,7 +269,7 @@ def search_query(query, complex = False):
     did = 0
 
     while(did < max_doc_id):
-        print did
+#        print did
         # get next post from shortest list
         did = nextGEQ(ip[0], did)
 
@@ -283,12 +291,12 @@ def search_query(query, complex = False):
             f = []
             for i in range(0, num):
                 f.append(getFreq(ip[i]))
-            print "get one page, id: "
-            print did
+#            print "get one page, id: "
+#            print did
             # compute BM25 score from frequencies and other data
             temp = compute_score(query, did, f)
-            print "score: "
-            print temp
+#            print "score: "
+#            print temp
             if len(res_q) < top:
                 heappush(res_q, (temp, did))
             elif res_q[0][0] < temp:
@@ -302,7 +310,7 @@ def search_query(query, complex = False):
 #    for i in range(0, num):
 #        closeList(ip[i])
     for i in reversed(range(0, len(res_q))):
-        url = doc_meta[ res_q[i][0] ].url
+        url = doc_meta[ int(res_q[i][0] + 0.5) ].url
         res.append(  (res_q[i][0], url, res_q[i][1])  )
     print res
     display_simple_result(res)
@@ -344,8 +352,8 @@ def make_decision_and_do_cache(cache_num = 500000, path = "EnglishWordFrequency2
 #    This function read a bag of words with frequency in common English. In decending order of this frequency, do cache.
     cached_num = 0
     for line in open(path):
-        print "cached num:"
-        print cached_num
+#        print "cached num:"
+#        print cached_num
         line = line.split()
         if len(line) == 3:
             word = line[0]
