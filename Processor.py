@@ -21,6 +21,7 @@ class lexicon_node:
         self.total = -1
         self.did = -1
         self.length = -1
+        self.meta_length = -1
         #        self.number = -1
 
     def display(self):
@@ -52,13 +53,14 @@ def build_lexicon(path):
         lexicon_list.append(lexicon_node())
     for line in open(path):
         w = line.split()
-        if len(w) == 7:
+        if len(w) == 8:
             id = int(w[1])
             word_list[w[0]] = id
             lexicon_list[id].start = w[4]
             lexicon_list[id].total = w[3]
             lexicon_list[id].did = w[2]
-            lexicon_list[id].length = w[6]
+            lexicon_list[id].meta_length = w[6]
+            lexicon_list[id].length = w[7]
             d_avg += float(w[5])
         else:
             continue
@@ -107,22 +109,24 @@ def openList(term, getCache=False):
     print lexicon_node_obj.did
     print lexicon_node_obj.start
     print lexicon_node_obj.total
+    list_file = open(pwd + "inverted_index_new/" + str(lexicon_node_obj.did), "rb")
+    list_file.seek(int(lexicon_node_obj.start))
+    list_data_str = list_file.read(int(lexicon_node_obj.length))
     list_posting = {
         "current_chunk_index": 0,
         "current_posting_index": 0,
         "chunks": {},
         "meta_data": [],
         "did": lexicon_node_obj.did,
-        "start": int(lexicon_node_obj.start) + int(lexicon_node_obj.length)
+        "chunks_str": list_data_str[int(lexicon_node_obj.meta_length):]
     }
-    list_file = open(pwd + "inverted_index_new/" + str(lexicon_node_obj.did), "rb")
-    list_file.seek(int(lexicon_node_obj.start))
-    list_data_str = list_file.read(int(lexicon_node_obj.length))
     print "lexicon_node_obj.start:" + str(lexicon_node_obj.start)
     print "lexicon_node_obj.len:" + str(lexicon_node_obj.length)
-    list_data = decode7bit(list_data_str)
+    list_data = decode7bit(list_data_str[:int(lexicon_node_obj.meta_length)])
     list_file.close()
     print "len(list_data):---" + str(len(list_data))
+    size = 0
+    chunks_str = list_data_str[int(lexicon_node_obj.meta_length):]
     for i in range(0, len(list_data), 2):
         if i != 0:
             list_data[i] += list_data[i - 2]
@@ -130,6 +134,19 @@ def openList(term, getCache=False):
             "did": list_data[i],
             "chunk_size": list_data[i + 1]
         })
+        chunk_content = decode7bit(chunks_str[size:size + list_data[i + 1]])
+        chunk_postings = []
+        for j in range(0, len(chunk_content), 2):
+            if j != 0:
+                chunk_content[j] += chunk_content[j - 2]
+            elif i != 0:
+                chunk_content[j] += list_data[i - 2]
+            chunk_postings.append({
+                "did": chunk_content[j],
+                "freq": chunk_content[j + 1]
+            })
+        list_posting["chunks"][i / 2] = chunk_postings
+        size += list_data[i + 1]
     return list_posting
 
 
@@ -145,37 +162,10 @@ def nextGEQ(list_posting, k_docID):
     while current_chunk_index < len(meta_data):
         did = meta_data[current_chunk_index]["did"]
         if did >= k_docID:
-            if current_chunk_index in chunks:
-                for j in range(current_posting_index, len(chunks[current_chunk_index])):
-                    next_did = chunks[current_chunk_index][j]["did"]
-                    if next_did >= k_docID:
-                        list_posting["current_posting_index"] = j
-                        return next_did
-            else:
-                list_file = open(pwd + "inverted_index_new/" + list_posting["did"], "rb")
-                size = int(list_posting["start"])
-                for meta_index in range(current_chunk_index):
-                    size += int(list_posting["meta_data"][meta_index]["chunk_size"])
-                list_file.seek(size)
-                chunk_content = decode7bit(list_file.read(meta_data[current_chunk_index]["chunk_size"]))
-                chunk_postings = []
-                next_did = -1
-                for i in range(0, len(chunk_content), 2):
-                    if i != 0:
-                        chunk_content[i] += chunk_content[i - 2]
-                    elif current_chunk_index != 0:
-                        chunk_content[i] += meta_data[current_chunk_index - 1]["did"]
-                    chunk_postings.append({
-                        "did": chunk_content[i],
-                        "freq": chunk_content[i + 1]
-                    })
-                    if chunk_content[i] >= k_docID and next_did == -1:
-                        list_posting["current_posting_index"] = i / 2
-                        next_did = chunk_content[i]
-                list_posting["chunks"][current_chunk_index] = chunk_postings
-                list_file.close()
-                if next_did != -1:
-                    list_posting["current_chunk_index"] = current_chunk_index
+            for j in range(current_posting_index, len(chunks[current_chunk_index])):
+                next_did = chunks[current_chunk_index][j]["did"]
+                if next_did >= k_docID:
+                    list_posting["current_posting_index"] = j
                     return next_did
         current_chunk_index += 1
         current_posting_index = 0
@@ -255,7 +245,7 @@ def search_query(query, complex = False):
     d = []
     for q in query:
 #        ip.append(word_list[q])
-        ip.append(openList(word_list[q]))
+        ip.append(openList(word_list[q], True))
 #    ip = openList(ip)??? openList one term??
     print "ip are: "
     print ip

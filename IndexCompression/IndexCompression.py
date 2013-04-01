@@ -89,6 +89,8 @@ for i in range(66):
         print "current_offset:" + str(current_offset)
         index += lexicon_node_obj.data_num
         inverted_index_list.write(meta_data)
+        meta_data_offset = inverted_index_list.tell() - current_offset
+        inverted_index_list.write(chunks_data)
         lexicon_info.append([
             lexicon_node_obj.term,
             lexicon_node_obj.term_id,
@@ -96,9 +98,9 @@ for i in range(66):
             lexicon_node_obj.f_t,
             str(current_offset),
             str(lexicon_node_obj.data_num),
+            str(meta_data_offset),
             str(inverted_index_list.tell() - current_offset)
         ])
-        inverted_index_list.write(chunks_data)
     inverted_index_list.close()
     inverted_index_data_file.close()
     inverted_index_f_file.close()
