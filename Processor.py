@@ -103,12 +103,7 @@ def openList(term, getCache=False):
             data["current_chunk_index"] = 0
             data["current_posting_index"] = 0
             return data
-
-    print term
     lexicon_node_obj = lexicon_list[term]
-    print lexicon_node_obj.did
-    print lexicon_node_obj.start
-    print lexicon_node_obj.total
     list_file = open(pwd + "inverted_index_new/" + str(lexicon_node_obj.did), "rb")
     list_file.seek(int(lexicon_node_obj.start))
     list_data_str = list_file.read(int(lexicon_node_obj.length))
@@ -125,8 +120,6 @@ def openList(term, getCache=False):
     list_data = decode7bit(list_data_str[:int(lexicon_node_obj.meta_length)])
     list_file.close()
     print "len(list_data):---" + str(len(list_data))
-    size = 0
-    chunks_str = list_data_str[int(lexicon_node_obj.meta_length):]
     for i in range(0, len(list_data), 2):
         if i != 0:
             list_data[i] += list_data[i - 2]
@@ -134,19 +127,6 @@ def openList(term, getCache=False):
             "did": list_data[i],
             "chunk_size": list_data[i + 1]
         })
-        chunk_content = decode7bit(chunks_str[size:size + list_data[i + 1]])
-        chunk_postings = []
-        for j in range(0, len(chunk_content), 2):
-            if j != 0:
-                chunk_content[j] += chunk_content[j - 2]
-            elif i != 0:
-                chunk_content[j] += list_data[i - 2]
-            chunk_postings.append({
-                "did": chunk_content[j],
-                "freq": chunk_content[j + 1]
-            })
-        list_posting["chunks"][i / 2] = chunk_postings
-        size += list_data[i + 1]
     return list_posting
 
 
@@ -162,10 +142,35 @@ def nextGEQ(list_posting, k_docID):
     while current_chunk_index < len(meta_data):
         did = meta_data[current_chunk_index]["did"]
         if did >= k_docID:
-            for j in range(current_posting_index, len(chunks[current_chunk_index])):
-                next_did = chunks[current_chunk_index][j]["did"]
-                if next_did >= k_docID:
-                    list_posting["current_posting_index"] = j
+            if current_chunk_index in chunks:
+                for j in range(current_posting_index, len(chunks[current_chunk_index])):
+                    next_did = chunks[current_chunk_index][j]["did"]
+                    if next_did >= k_docID:
+                        list_posting["current_posting_index"] = j
+                        return next_did
+            else:
+                size = 0
+                for meta_index in range(current_chunk_index):
+                    size += int(list_posting["meta_data"][meta_index]["chunk_size"])
+                chunk_content = decode7bit(
+                    list_posting["chunks_str"][size:meta_data[current_chunk_index]["chunk_size"]])
+                chunk_postings = []
+                next_did = -1
+                for i in range(0, len(chunk_content), 2):
+                    if i != 0:
+                        chunk_content[i] += chunk_content[i - 2]
+                    elif current_chunk_index != 0:
+                        chunk_content[i] += meta_data[current_chunk_index - 1]["did"]
+                    chunk_postings.append({
+                        "did": chunk_content[i],
+                        "freq": chunk_content[i + 1]
+                    })
+                    if chunk_content[i] >= k_docID and next_did == -1:
+                        list_posting["current_posting_index"] = i / 2
+                        next_did = chunk_content[i]
+                list_posting["chunks"][current_chunk_index] = chunk_postings
+                if next_did != -1:
+                    list_posting["current_chunk_index"] = current_chunk_index
                     return next_did
         current_chunk_index += 1
         current_posting_index = 0
@@ -400,7 +405,7 @@ doc_meta = []
 lexicon_list = []
 word_list = {}
 
-pwd = "/Users/charnugagoo/Documents/Workspace/InvertedIndexLargeDataSet/LargeDateset/"
+pwd = "/Users/jiankaidang/Documents/WebSearchEngines/testing/query-processor/IndexCompression/LargeDateset/"
 print "Building Doc Meta Data...\n"
 build_doc_meta_data(pwd + "DocMetaData_large_set.txt")
 print "Building Lexicon Meta Data..."
