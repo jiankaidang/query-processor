@@ -94,17 +94,22 @@ def build_doc_meta_data(path):
 ################## Basic Search APIs ######################
 
 #DaaT functions begin
-
-def openList(term, getCache=False):
-# term is a list of word id
+# Open the inverted list for a specific term.
+# @param termId {integer} Term id
+# @param getCache {Boolean} Whether to get the inverted list information from cache. Default value is False.
+# @return {Dictionary} A dictionary of inverted list information.
+def openList(termId, getCache=False):
     if getCache:
-        if is_cached(term):
-            data = get_cache_data(term)
+        if is_cached(termId):
+            data = get_cache_data(termId)
+            # Reset the index information.
             data["current_chunk_index"] = 0
             data["current_posting_index"] = 0
             return data
-    lexicon_node_obj = lexicon_list[term]
+    lexicon_node_obj = lexicon_list[termId]
+    # Open to read the inverted list file.
     list_file = open(pwd + "inverted_index_new/" + str(lexicon_node_obj.did), "rb")
+    # Seek to the start offset of the inverted list information for this term.
     list_file.seek(int(lexicon_node_obj.start))
     list_data_str = list_file.read(int(lexicon_node_obj.length))
     list_posting = {
@@ -112,18 +117,23 @@ def openList(term, getCache=False):
         "current_posting_index": 0,
         "chunks": {},
         "meta_data": [],
+        # The inverted list file name.
         "did": lexicon_node_obj.did,
+        # Store the string of chunks data into memory.
         "chunks_str": list_data_str[int(lexicon_node_obj.meta_length):]
     }
     print "lexicon_node_obj.start:" + str(lexicon_node_obj.start)
     print "lexicon_node_obj.len:" + str(lexicon_node_obj.length)
+    # Decode the meta data information.
     list_data = decode7bit(list_data_str[:int(lexicon_node_obj.meta_length)])
     list_file.close()
-    print "len(list_data):---" + str(len(list_data))
+    # print "len(list_data):---" + str(len(list_data))
     for i in range(0, len(list_data), 2):
         if i != 0:
+            # Decode the document id information.
             list_data[i] += list_data[i - 2]
         list_posting["meta_data"].append({
+            # The last document id of this chunk.
             "did": list_data[i],
             "chunk_size": list_data[i + 1]
         })
@@ -133,13 +143,17 @@ def openList(term, getCache=False):
 def closeList(term):
     return
 
-
+# Find the next document id greater than or equal to a specific document id.
+# @param list_posting {Dictionary} The inverted list information dictionary.
+# @param k_docID {Integer} The document id to compare to.
+# @return {Integer} The next document id greater than or equal to a specific document id or return max_doc_id if not any.
 def nextGEQ(list_posting, k_docID):
     current_chunk_index = int(list_posting["current_chunk_index"])
     meta_data = list_posting["meta_data"]
     chunks = list_posting["chunks"]
     current_posting_index = int(list_posting["current_posting_index"])
     while current_chunk_index < len(meta_data):
+        # The last document id of current chunk.
         did = meta_data[current_chunk_index]["did"]
         if did >= k_docID:
             if current_chunk_index in chunks:
@@ -151,13 +165,16 @@ def nextGEQ(list_posting, k_docID):
             else:
                 size = 0
                 for meta_index in range(current_chunk_index):
+                    # Calculate the offset of the chunk.
                     size += int(list_posting["meta_data"][meta_index]["chunk_size"])
+                    # Decode the chunk content.
                 chunk_content = decode7bit(
                     list_posting["chunks_str"][size:meta_data[current_chunk_index]["chunk_size"]])
                 chunk_postings = []
                 next_did = -1
                 for i in range(0, len(chunk_content), 2):
                     if i != 0:
+                        # Decode the document id.
                         chunk_content[i] += chunk_content[i - 2]
                     elif current_chunk_index != 0:
                         chunk_content[i] += meta_data[current_chunk_index - 1]["did"]
