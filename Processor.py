@@ -405,7 +405,7 @@ doc_meta = []
 lexicon_list = []
 word_list = {}
 
-pwd = "/Users/jiankaidang/Documents/WebSearchEngines/testing/query-processor/IndexCompression/LargeDateset/"
+pwd = "/Users/charnugagoo/Documents/Workspace/InvertedIndexLargeDataSet/LargeDateset/"
 print "Building Doc Meta Data...\n"
 build_doc_meta_data(pwd + "DocMetaData_large_set.txt")
 print "Building Lexicon Meta Data..."
