@@ -18,19 +18,22 @@ def get_content(url):
             # If the server cannot send a response which is acceptable according to the combined Accept field value,
             # then the server SHOULD send a 406 (not acceptable) response.
             "Accept": "text/html,application/xhtml+xml"
-        }), timeout=3)
+        }), timeout=5)
         res = pageToVisit.read()
         pageToVisit.close()
     except Exception:
         pass
     
     return res
+hash_content = []
 
 def check_content(Content):
     """Check is there any similar content visited before
         
         Use SimHash compute a 128 bit hash number. Compute Hamming distance to decide whether they are similar
         """
+    global hash_content
+    return True
     hash = simHash.simhash(Content.split())
     for x in hash_content:
         if hash.hamming_distance(x) < 1:
@@ -52,7 +55,7 @@ def check_result(terms, result_set):
             # res.append(r)
 
             # give a simple content
-            res_sub_str = ""
+            res_sub_str = content[0: min(len(content), 140) ]
             res_sub_str_num = -1
             for term in terms:
                 i = content.find(term)

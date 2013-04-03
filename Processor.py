@@ -283,15 +283,15 @@ def search_query(query, complex = False):
     global top
     res = []
     # query = query.split()
-    print query
+#    print query
     query = parse(query)
     qq = []
     for qt in query:
         if qt in word_list:
             qq.append(qt)
     query = qq
-    print "Query are: "
-    print query
+#    print "Query are: "
+#    print query
     if len(query) == 0:
         return res
     ip = []
@@ -300,8 +300,8 @@ def search_query(query, complex = False):
 #        ip.append(word_list[q])
         ip.append(openList(word_list[q], True))
 #    ip = openList(ip)??? openList one term??
-    print "ip are: "
-    print ip
+#    print "ip are: "
+#    print ip
 
     if len(ip) == 0:
         return res
@@ -323,8 +323,8 @@ def search_query(query, complex = False):
             d = nextGEQ(ip[i], did)
             if d != did:
                 break
-            print i
-            print d
+#            print i
+#            print d
                 # not in intersection
         if d > did:
             did = d
@@ -348,20 +348,24 @@ def search_query(query, complex = False):
                 heappop(res_q)
                 heappush(res_q, (temp, did))
                 # to do top10, using priority queue
-            print "DID:!!!!"
-            print did
+#            print "DID:!!!!"
+#            print did
             # and increase did to search for next post
             did = did+1
 
 #    for i in range(0, num):
 #        closeList(ip[i])
+#    print res_q
+    res_q = sorted(res_q, key = lambda tup: tup[0])
+#    print res_q
     for i in reversed(range(0, len(res_q))):
         url = doc_meta[ res_q[i][1] ].url
-        print res_q[i][0]
-        print res_q[i][1]
-        print url
+#        print res_q[i][0]
+#        print res_q[i][1]
+#        print url
         res.append(  (res_q[i][0], url, res_q[i][1])  )
-    print res
+#    print res
+
     display_simple_result(res)
     if complex:
         res = display_complex_result(res, query)
@@ -373,16 +377,15 @@ def search_query(query, complex = False):
 ################## Display APIs######################
 
 def display_simple_result(result_set):
-    print "There are " + str(len(result_set)) + " querries.\n Simple Result:\n"
+    print "There are " + str(len(result_set)) + " results.\n Simple Result:\n"
     for i in range(0, len(result_set)):
         print "Result #" + str(i)
         r = result_set[i]
         print r[0], r[1], r[2]
-        print result_set[i][1]
     return
 
 def display_complex_result(result_set, query):
-    print "There are " + str(len(result_set)) + " querries.\n Complex Result:\n"
+    print "There are " + str(len(result_set)) + " results.\n Complex Result:\n"
     # check duplicate and none-visitable result
     result_set = check_result(query, result_set)
     for i in range(0, len(result_set)):
