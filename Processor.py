@@ -4,6 +4,8 @@ import random
 from encode import decode7bit
 from checkResult import check_result
 from queryParser import parse
+from time import time
+from time import sleep
 
 #
 #comand list:
@@ -75,14 +77,18 @@ def build_doc_meta_data(path):
     for line in open(path):
         w = line.split()
         if len(w) == 1 and is_init == False:
-            t = doc_node()
             for i in range(0, int(w[0])):
-                doc_meta.append(t)
+                doc_meta.append(doc_node())
         elif len(w) == 4:
             id = int(w[0])
             doc_list[w[1]] = id
             doc_meta[id].url = w[1]
             doc_meta[id].total = w[2]
+#            doc_meta[id].pr = w[3]
+#            print id
+#            print doc_meta[id].url
+#            sleep(1)
+#            print w[1]
 #            doc_meta[id].pr = float(getPageRank(w[1]))
 #            doc_meta[id].ar = float(getAlexaRank(w[1]))
         else:
@@ -122,8 +128,8 @@ def openList(termId, getCache=False):
         # Store the string of chunks data into memory.
         "chunks_str": list_data_str[int(lexicon_node_obj.meta_length):]
     }
-    print "lexicon_node_obj.start:" + str(lexicon_node_obj.start)
-    print "lexicon_node_obj.len:" + str(lexicon_node_obj.length)
+#    print "lexicon_node_obj.start:" + str(lexicon_node_obj.start)
+#    print "lexicon_node_obj.len:" + str(lexicon_node_obj.length)
     # Decode the meta data information.
     list_data = decode7bit(list_data_str[:int(lexicon_node_obj.meta_length)])
     list_file.close()
@@ -309,20 +315,26 @@ def search_query(query, complex = False):
             temp = compute_score(query, did, f)
 #            print "score: "
 #            print temp
+            if did >= max_doc_id:
+                break
             if len(res_q) < top:
                 heappush(res_q, (temp, did))
             elif res_q[0][0] < temp:
                 heappop(res_q)
                 heappush(res_q, (temp, did))
                 # to do top10, using priority queue
-
+            print "DID:!!!!"
+            print did
             # and increase did to search for next post
             did = did+1
 
 #    for i in range(0, num):
 #        closeList(ip[i])
     for i in reversed(range(0, len(res_q))):
-        url = doc_meta[ int(res_q[i][0] + 0.5) ].url
+        url = doc_meta[ res_q[i][1] ].url
+        print res_q[i][0]
+        print res_q[i][1]
+        print url
         res.append(  (res_q[i][0], url, res_q[i][1])  )
     print res
     display_simple_result(res)
@@ -440,7 +452,10 @@ while(True):
         break
     if input == "search":
         query = raw_input("your query: ")
+        _time = time()
         result_set = search_query(query)
+        _time = time() - _time
+        print "time: ", str(_time)
 #        try:
 #            result_set = search_query(query)
 #        except Exception:
