@@ -115,12 +115,10 @@ def openList(termId, getCache=False):
     list_posting = {
         "current_chunk_index": 0,
         "current_posting_index": 0,
-        "chunks": {},
+        "current_freq": 0,
         "meta_data": [],
         # The inverted list file name.
-        "did": lexicon_node_obj.did,
-        # Store the string of chunks data into memory.
-        "chunks_str": list_data_str[int(lexicon_node_obj.meta_length):]
+        "did": lexicon_node_obj.did
     }
     print "lexicon_node_obj.start:" + str(lexicon_node_obj.start)
     print "lexicon_node_obj.len:" + str(lexicon_node_obj.length)
@@ -137,6 +135,28 @@ def openList(termId, getCache=False):
             "did": list_data[i],
             "chunk_size": list_data[i + 1]
         })
+
+    if True:
+    # if getCache:
+        # Store the string of chunks data into memory.
+        list_posting["chunks_str"] = list_data_str[int(lexicon_node_obj.meta_length):]
+    else:
+        size = 0
+        chunks_str = list_data_str[int(lexicon_node_obj.meta_length):]
+        for i in range(0, len(list_data), 2):
+            chunk_content = decode7bit(chunks_str[size:size + list_data[i + 1]])
+            chunk_postings = []
+            for j in range(0, len(chunk_content), 2):
+                if j != 0:
+                    chunk_content[j] += chunk_content[j - 2]
+                elif i != 0:
+                    chunk_content[j] += list_data[i - 2]
+                chunk_postings.append({
+                    "did": chunk_content[j],
+                    "freq": chunk_content[j + 1]
+                })
+            list_posting[i / 2] = chunk_postings
+            size += list_data[i + 1]
     return list_posting
 
 
@@ -150,52 +170,57 @@ def closeList(term):
 def nextGEQ(list_posting, k_docID):
     current_chunk_index = int(list_posting["current_chunk_index"])
     meta_data = list_posting["meta_data"]
-    chunks = list_posting["chunks"]
     current_posting_index = int(list_posting["current_posting_index"])
-    while current_chunk_index < len(meta_data):
+    meta_data_length = len(meta_data)
+    while current_chunk_index < meta_data_length:
         # The last document id of current chunk.
         did = meta_data[current_chunk_index]["did"]
         if did >= k_docID:
-            if current_chunk_index in chunks:
-                for j in range(current_posting_index, len(chunks[current_chunk_index])):
-                    next_did = chunks[current_chunk_index][j]["did"]
-                    if next_did >= k_docID:
-                        list_posting["current_posting_index"] = j
-                        return next_did
-            else:
-                size = 0
-                for meta_index in range(current_chunk_index):
-                    # Calculate the offset of the chunk.
-                    size += int(list_posting["meta_data"][meta_index]["chunk_size"])
-                    # Decode the chunk content.
-                chunk_content = decode7bit(
-                    list_posting["chunks_str"][size:meta_data[current_chunk_index]["chunk_size"]])
-                chunk_postings = []
-                next_did = -1
-                for i in range(0, len(chunk_content), 2):
-                    if i != 0:
-                        # Decode the document id.
-                        chunk_content[i] += chunk_content[i - 2]
-                    elif current_chunk_index != 0:
-                        chunk_content[i] += meta_data[current_chunk_index - 1]["did"]
-                    chunk_postings.append({
-                        "did": chunk_content[i],
-                        "freq": chunk_content[i + 1]
-                    })
-                    if chunk_content[i] >= k_docID and next_did == -1:
-                        list_posting["current_posting_index"] = i / 2
-                        next_did = chunk_content[i]
-                list_posting["chunks"][current_chunk_index] = chunk_postings
-                if next_did != -1:
-                    list_posting["current_chunk_index"] = current_chunk_index
-                    return next_did
+            break
         current_chunk_index += 1
         current_posting_index = 0
+    if current_chunk_index >= meta_data_length:
+        return max_doc_id
+    if current_chunk_index in list_posting:
+        for j in range(current_posting_index, len(list_posting[current_chunk_index])):
+            next_did = list_posting[current_chunk_index][j]["did"]
+            if next_did >= k_docID:
+                list_posting["current_posting_index"] = j
+                list_posting["current_freq"] = list_posting[current_chunk_index][j]["freq"]
+                return next_did
+    else:
+        size = 0
+        for meta_index in range(current_chunk_index):
+            # Calculate the offset of the chunk.
+            size += int(list_posting["meta_data"][meta_index]["chunk_size"])
+            # Decode the chunk content.
+        chunk_content = decode7bit(
+            list_posting["chunks_str"][size:meta_data[current_chunk_index]["chunk_size"]])
+        chunk_postings = []
+        next_did = -1
+        for i in range(0, len(chunk_content), 2):
+            if i != 0:
+                # Decode the document id.
+                chunk_content[i] += chunk_content[i - 2]
+            elif current_chunk_index != 0:
+                chunk_content[i] += meta_data[current_chunk_index - 1]["did"]
+            chunk_postings.append({
+                "did": chunk_content[i],
+                "freq": chunk_content[i + 1]
+            })
+            if chunk_content[i] >= k_docID and next_did == -1:
+                list_posting["current_posting_index"] = i / 2
+                list_posting["current_freq"] = chunk_content[i + 1]
+                next_did = chunk_content[i]
+        list_posting[current_chunk_index] = chunk_postings
+        if next_did != -1:
+            list_posting["current_chunk_index"] = current_chunk_index
+            return next_did
     return max_doc_id
 
 
 def getFreq(list_posting):
-    return list_posting["chunks"][list_posting["current_chunk_index"]][list_posting["current_posting_index"]]["freq"]
+    return list_posting["current_freq"]
 
 #DaaT functions end
 ################## Basic Search APIs ######################
